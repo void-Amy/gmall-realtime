@@ -27,4 +27,6 @@ public class Test01_FlinkCDC {
         env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 .print().setParallelism(1); // use parallelism 1 for sink to keep message ordering
     }
+
+
 }
