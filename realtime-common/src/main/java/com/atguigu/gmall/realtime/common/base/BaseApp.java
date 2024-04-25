@@ -49,7 +49,7 @@ public abstract class BaseApp {
         // 2.6设置状态后端：指定检查点存储路径
         env.setStateBackend(new HashMapStateBackend());
         //检查点存储路径设置
-        checkpointConfig.setCheckpointStorage("hdfs://hadoop102:8020/ck");
+        checkpointConfig.setCheckpointStorage("hdfs://hadoop102:8020/dim");
 
         // 2.7设置操作hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "atguigu");
