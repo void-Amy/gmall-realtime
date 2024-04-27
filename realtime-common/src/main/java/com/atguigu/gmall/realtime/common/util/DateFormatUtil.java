@@ -3,6 +3,7 @@ package com.atguigu.gmall.realtime.common.util;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,5 +60,10 @@ public class DateFormatUtil {
         String result = format.format(date);
         return result;
 
+    }
+
+    public static Long dateTimeToTs(String dateTime) {
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTime, dtfFull);
+        return localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
     }
 }

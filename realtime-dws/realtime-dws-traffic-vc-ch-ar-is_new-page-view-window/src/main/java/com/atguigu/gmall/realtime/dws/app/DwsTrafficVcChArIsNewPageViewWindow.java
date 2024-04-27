@@ -112,6 +112,7 @@ public class DwsTrafficVcChArIsNewPageViewWindow extends BaseApp {
                         String lastVisitDate = lastVisitDateState.value();
                         Long uvCt = 0L;
                         if (StringUtils.isEmpty(lastVisitDate) || !lastVisitDate.equals(curVisitDate)) {
+                            //这个设备今天访问过了没有
                             uvCt = 1L;
                             lastVisitDateState.update(curVisitDate);
                         }

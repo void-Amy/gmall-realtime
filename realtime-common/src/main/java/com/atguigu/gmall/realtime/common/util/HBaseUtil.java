@@ -1,7 +1,12 @@
 package com.atguigu.gmall.realtime.common.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.atguigu.gmall.realtime.common.constant.Constant;
+import com.google.common.base.CaseFormat;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -122,6 +127,61 @@ public class HBaseUtil {
             throw new RuntimeException(e);
         }
     }
+
+    //更具rowkey从表中查询数据
+    //方法的返回只是任意类型
+    //<T> 声明泛型
+    public static <T> T getRow(Connection hbaseConn, String nameSpace,String tableName,String rowKey,
+                               Class<T> tClass,boolean... isUnderlineToCamel){
+        boolean defaultIsUToC = false;
+
+        if(isUnderlineToCamel.length > 0){
+            defaultIsUToC = isUnderlineToCamel[0];
+
+        }
+
+        TableName tableNameObj = TableName.valueOf(nameSpace, tableName);
+        try (Table table = hbaseConn.getTable(tableNameObj)){
+            Get get = new Get(Bytes.toBytes(rowKey));
+            Result result = table.get(get);
+
+            List<Cell> cells = result.listCells();
+            if(cells != null && cells.size() > 0){
+                T obj = tClass.newInstance();
+                for (Cell cell : cells) {
+                    byte[] bytes = CellUtil.cloneQualifier(cell);
+                    String columnName = Bytes.toString(bytes);
+                    String columnValue = Bytes.toString(CellUtil.cloneValue(cell));
+
+                    if(defaultIsUToC){
+                        columnName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,columnName);
+                    }
+                    BeanUtils.setProperty(obj,columnName,columnValue);
+                }
+                return obj;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public static void main(String[] args){
+        Connection hBaseConnection = getHBaseConnection();
+        JSONObject dimSkuInfo = HBaseUtil.getRow(hBaseConnection,
+                Constant.HBASE_NAMESPACE,
+                "dim_sku_info",
+                "10",
+                JSONObject.class);
+        System.out.println(dimSkuInfo.toJSONString());
+        try {
+            closeHbaseCon(hBaseConnection);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
 
 

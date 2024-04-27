@@ -4,25 +4,30 @@ import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.realtime.common.bean.TableProcessDim;
 import com.atguigu.gmall.realtime.common.constant.Constant;
 import com.atguigu.gmall.realtime.common.util.HBaseUtil;
+import com.atguigu.gmall.realtime.common.util.RedisUtil;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.hadoop.hbase.client.Connection;
+import redis.clients.jedis.Jedis;
 
 public class HBaseSinkFunction extends RichSinkFunction<Tuple2<JSONObject, TableProcessDim>> {
 
         Connection hbaseConnection = null;
+        Jedis jedis;
 
         @Override
         public void open(Configuration parameters) throws Exception {
             //把hbase连接放到open方法中
             hbaseConnection = HBaseUtil.getHBaseConnection();
+            jedis = RedisUtil.getJedis();
         }
 
         @Override
         public void close() throws Exception {
             //关闭hbase连接
             HBaseUtil.closeHbaseCon(hbaseConnection);
+            RedisUtil.closeJedis(jedis);
         }
 
         //将流中的数据同步到Hbase对应的表中
@@ -48,6 +53,10 @@ public class HBaseSinkFunction extends RichSinkFunction<Tuple2<JSONObject, Table
             } else {
                 //往表中插入数据
                 HBaseUtil.putRow(hbaseConnection,Constant.HBASE_NAMESPACE,sinkTable,rowKey,tableProcess.getSinkFamily(),jsonObj);
+            }
+            //如果业务数据库中的维度表发生了变化，要将redis中的缓存数据清楚掉
+            if("delete".equals(type) || "update".equals(type)){
+                jedis.del(sinkTable + ":" + rowKey);
             }
         }
 
