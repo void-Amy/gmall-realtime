@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 操作Hbase
@@ -39,6 +41,32 @@ public class HBaseUtil {
     public static void closeHbaseCon(Connection con) throws IOException {
         if(con != null){
             con.close();
+        }
+    }
+
+    //获取异步操作Hbase的连接
+    public static AsyncConnection getAsyncHBaseConnection(){
+        try {
+            Configuration conf = new Configuration();
+            conf.set("hbase.zookeeper.quorum","hadoop102,hadoop103,hadoop104");
+            //端口默认就是2181,不用设置
+            conf.set("hbase.zookeeper.property.clientPort", "2181");
+
+            AsyncConnection asyncConnection = ConnectionFactory.createAsyncConnection(conf).get();
+            return asyncConnection;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //
+    public static void closeAsyncHbaseCon(AsyncConnection asyncConnection){
+        if(asyncConnection != null && !asyncConnection.isClosed()){
+            try {
+                asyncConnection.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -165,6 +193,32 @@ public class HBaseUtil {
         }
         return null;
     }
+
+    //以异步的方式从Hbase中根据rowkey获取维度对象
+    public static JSONObject getRowAsync(AsyncConnection asyncConnection, String nameSpace,String tableName,String rowKey){
+        TableName tableNameObj = TableName.valueOf(nameSpace, tableName);
+        AsyncTable<AdvancedScanResultConsumer> asyncTable = asyncConnection.getTable(tableNameObj);
+        Get get = new Get(Bytes.toBytes(rowKey));
+        try {
+            Result result = asyncTable.get(get).get();
+            List<Cell> cells = result.listCells();
+            if(cells != null && cells.size() > 0){
+                JSONObject jsonObj = new JSONObject();
+                for (Cell cell : cells) {
+                    byte[] bytes = CellUtil.cloneQualifier(cell);
+                    String columnName = Bytes.toString(bytes);
+                    String columnValue = Bytes.toString(CellUtil.cloneValue(cell));
+                    jsonObj.put(columnName,columnValue);
+                }
+                return jsonObj;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+
+    }
+
 
     public static void main(String[] args){
         Connection hBaseConnection = getHBaseConnection();

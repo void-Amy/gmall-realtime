@@ -21,6 +21,7 @@
         <module>realtime-dws-trade-payment-suc-window</module>
         <module>realtime-dws-trade-order-window</module>
         <module>realtime-dws-trade-sku-order-window</module>
+        <module>realtime-dws-trade-province-order-window</module>
     </modules>
 
 
