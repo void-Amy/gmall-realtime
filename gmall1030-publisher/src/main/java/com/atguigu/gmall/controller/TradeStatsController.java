@@ -23,7 +23,7 @@ public class TradeStatsController {
     private TradeStatsService tradeStatsService;
 
     /**
-     * http://localhost:8070/gmall/realtime/trade/total
+     * http://localhost:8070/total
      * @param date
      * @return
      */
@@ -46,22 +46,6 @@ public class TradeStatsController {
             date = DateFormatUtil.now();
         }
         List<TradeProvinceOrderAmount> provinceOrderAmountList = tradeStatsService.getProvinceOrderAmount(date);
-
-        /*Map resMap = new HashMap();
-        resMap.put("status",0);
-
-        HashMap dataMap = new HashMap();
-        List dataList = new ArrayList();
-        for (TradeProvinceOrderAmount tradeProvinceOrderAmount : provinceOrderAmountList) {
-            JSONObject dataObj = new JSONObject();
-            dataObj.put("name",tradeProvinceOrderAmount.getProvinceName());
-            dataObj.put("value",tradeProvinceOrderAmount.getOrderAmount());
-            dataList.add(dataObj);
-        }
-        dataMap.put("mapData",dataList);
-        resMap.put("data",dataMap);
-        resMap.put("valueName","交易额");
-        return resMap;*/
 
         Map resMap = new HashMap();
         resMap.put("status",0);

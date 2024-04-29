@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class TradeProvinceOrderAmount {
     // 省份名称
     String provinceName;
