@@ -22,6 +22,7 @@
         <module>realtime-dws-trade-order-window</module>
         <module>realtime-dws-trade-sku-order-window</module>
         <module>realtime-dws-trade-province-order-window</module>
+        <module>realtime-dws-trade-trademark-category-user-refund-window</module>
     </modules>
 
 
