@@ -10,12 +10,17 @@
     </parent>
 
     <artifactId>realtime-dwd</artifactId>
-
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <packaging>pom</packaging>
+    <modules>
+        <module>realtime-dwd-base-log</module>
+        <module>realtime-dwd-interaction-comment-info</module>
+        <module>realtime-dwd-trade-cart-add</module>
+        <module>realtime-dwd-trade-order-detail</module>
+        <module>realtime-dwd-trade-order-refund</module>
+        <module>realtime-dwd-trade-refund-pay-suc-detail</module>
+        <module>realtime-dwd-base-db</module>
+        <module>realtime-dwd-trade-order-cancel-detail</module>
+    </modules>
 
     <dependencies>
         <dependency>
